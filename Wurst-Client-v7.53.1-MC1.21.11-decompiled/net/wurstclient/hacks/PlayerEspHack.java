@@ -1,0 +1,108 @@
+package net.wurstclient.hacks;
+
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import net.minecraft.class_1297;
+import net.minecraft.class_1657;
+import net.minecraft.class_238;
+import net.minecraft.class_243;
+import net.minecraft.class_3532;
+import net.minecraft.class_4587;
+import net.minecraft.class_742;
+import net.wurstclient.Category;
+import net.wurstclient.SearchTags;
+import net.wurstclient.events.CameraTransformViewBobbingListener;
+import net.wurstclient.events.RenderListener;
+import net.wurstclient.events.UpdateListener;
+import net.wurstclient.hack.Hack;
+import net.wurstclient.settings.EspBoxSizeSetting;
+import net.wurstclient.settings.EspStyleSetting;
+import net.wurstclient.settings.Setting;
+import net.wurstclient.settings.filterlists.EntityFilterList;
+import net.wurstclient.settings.filters.FilterInvisibleSetting;
+import net.wurstclient.settings.filters.FilterSleepingSetting;
+import net.wurstclient.util.EntityUtils;
+import net.wurstclient.util.FakePlayerEntity;
+import net.wurstclient.util.RenderUtils;
+
+@SearchTags(value={"player esp", "PlayerTracers", "player tracers"})
+public final class PlayerEspHack
+extends Hack
+implements UpdateListener,
+CameraTransformViewBobbingListener,
+RenderListener {
+    private final EspStyleSetting style = new EspStyleSetting(EspStyleSetting.EspStyle.LINES_AND_BOXES);
+    private final EspBoxSizeSetting boxSize = new EspBoxSizeSetting("\u00a7lAccurate\u00a7r mode shows the exact hitbox of each player.\n\u00a7lFancy\u00a7r mode shows slightly larger boxes that look better.");
+    private final EntityFilterList entityFilters = new EntityFilterList(new FilterSleepingSetting("Won't show sleeping players.", false), new FilterInvisibleSetting("Won't show invisible players.", false));
+    private final ArrayList<class_1657> players = new ArrayList();
+
+    public PlayerEspHack() {
+        super("PlayerESP");
+        this.setCategory(Category.RENDER);
+        this.addSetting(this.style);
+        this.addSetting(this.boxSize);
+        this.entityFilters.forEach(x$0 -> this.addSetting((Setting)x$0));
+    }
+
+    @Override
+    protected void onEnable() {
+        EVENTS.add(UpdateListener.class, this);
+        EVENTS.add(CameraTransformViewBobbingListener.class, this);
+        EVENTS.add(RenderListener.class, this);
+    }
+
+    @Override
+    protected void onDisable() {
+        EVENTS.remove(UpdateListener.class, this);
+        EVENTS.remove(CameraTransformViewBobbingListener.class, this);
+        EVENTS.remove(RenderListener.class, this);
+    }
+
+    @Override
+    public void onUpdate() {
+        this.players.clear();
+        Stream<class_742> stream = PlayerEspHack.MC.field_1687.method_18456().parallelStream().filter(e -> !e.method_31481() && e.method_6032() > 0.0f).filter(e -> e != PlayerEspHack.MC.field_1724).filter(e -> !(e instanceof FakePlayerEntity)).filter(e -> Math.abs(e.method_23318() - PlayerEspHack.MC.field_1724.method_23318()) <= 1000000.0);
+        stream = this.entityFilters.applyTo(stream);
+        this.players.addAll(stream.collect(Collectors.toList()));
+    }
+
+    @Override
+    public void onCameraTransformViewBobbing(CameraTransformViewBobbingListener.CameraTransformViewBobbingEvent event) {
+        if (this.style.hasLines()) {
+            event.cancel();
+        }
+    }
+
+    @Override
+    public void onRender(class_4587 matrixStack, float partialTicks) {
+        if (this.style.hasBoxes()) {
+            double extraSize = this.boxSize.getExtraSize() / 2.0f;
+            ArrayList<RenderUtils.ColoredBox> boxes = new ArrayList<RenderUtils.ColoredBox>(this.players.size());
+            for (class_1657 e : this.players) {
+                class_238 box = EntityUtils.getLerpedBox((class_1297)e, partialTicks).method_989(0.0, extraSize, 0.0).method_1014(extraSize);
+                boxes.add(new RenderUtils.ColoredBox(box, this.getColor(e)));
+            }
+            RenderUtils.drawOutlinedBoxes(matrixStack, boxes, false);
+        }
+        if (this.style.hasLines()) {
+            ArrayList<RenderUtils.ColoredPoint> ends = new ArrayList<RenderUtils.ColoredPoint>(this.players.size());
+            for (class_1657 e : this.players) {
+                class_243 point = EntityUtils.getLerpedBox((class_1297)e, partialTicks).method_1005();
+                ends.add(new RenderUtils.ColoredPoint(point, this.getColor(e)));
+            }
+            RenderUtils.drawTracers(matrixStack, partialTicks, ends, false);
+        }
+    }
+
+    private int getColor(class_1657 e) {
+        if (WURST.getFriends().contains(e.method_5477().getString())) {
+            return -2147483393;
+        }
+        float f = PlayerEspHack.MC.field_1724.method_5739((class_1297)e) / 20.0f;
+        float r = class_3532.method_15363((float)(2.0f - f), (float)0.0f, (float)1.0f);
+        float g = class_3532.method_15363((float)f, (float)0.0f, (float)1.0f);
+        float[] rgb = new float[]{r, g, 0.0f};
+        return RenderUtils.toIntColor(rgb, 0.5f);
+    }
+}
