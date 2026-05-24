@@ -12,6 +12,12 @@ Meteor ve Wurst hilelerinin birleşiminden oluşan özgün ve güçlü bir Minec
 
 PulseClient'ı build etmek için Gradle kullanılır. Terminalde projenin kök dizininde aşağıdaki komutu çalıştırın:
 
+**Windows için:**
+```cmd
+gradlew.bat build
+```
+
+**Linux/Mac için:**
 ```bash
 ./gradlew build
 ```
