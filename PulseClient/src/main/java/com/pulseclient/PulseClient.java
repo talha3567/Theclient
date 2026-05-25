@@ -20,11 +20,7 @@ public class PulseClient implements ClientModInitializer {
     public void onTick() {
         moduleManager.getModules().forEach(module -> {
             if (module.isEnabled()) {
-                if (module instanceof com.pulseclient.modules.combat.PulseKillAura) {
-                    ((com.pulseclient.modules.combat.PulseKillAura) module).onTick();
-                } else if (module instanceof com.pulseclient.modules.movement.PulseFlight) {
-                    ((com.pulseclient.modules.movement.PulseFlight) module).onTick();
-                }
+                module.onTick();
             }
         });
     }

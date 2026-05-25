@@ -49,4 +49,5 @@ public abstract class Module {
 
     protected void onEnable() {}
     protected void onDisable() {}
+    public void onTick() {}
 }
