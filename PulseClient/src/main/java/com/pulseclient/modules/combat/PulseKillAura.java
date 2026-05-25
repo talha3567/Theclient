@@ -28,7 +28,7 @@ public class PulseKillAura extends Module {
     public void onTick() {
         if (!isEnabled() || mc.player == null) return;
 
-        List<Entity> targets = mc.level.getEntities().getAll().stream()
+        List<Entity> targets = java.util.stream.StreamSupport.stream(mc.level.entitiesForRendering().spliterator(), false)
             .filter(this::isValidTarget)
             .sorted(Comparator.comparingDouble(e -> mc.player.distanceTo(e)))
             .collect(Collectors.toList());

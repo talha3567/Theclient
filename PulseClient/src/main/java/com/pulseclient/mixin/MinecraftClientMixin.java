@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MinecraftClientMixin {
     @Inject(at = @At("HEAD"), method = "tick")
     private void onTick(CallbackInfo info) {
-        // This is where the client hooks into the game's tick event
-        // PulseClient.INSTANCE.onTick();
+        PulseClient.INSTANCE.onTick();
     }
 }

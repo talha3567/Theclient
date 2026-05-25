@@ -4,7 +4,8 @@
   "package": "com.pulseclient.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "MinecraftClientMixin"
+    "MinecraftClientMixin",
+    "KeyboardMixin"
   ],
   "client": [],
   "injectors": {

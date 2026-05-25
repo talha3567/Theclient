@@ -127,6 +127,7 @@ public class ModuleManager {
         modules.add(new PulseCityESP());
         modules.add(new PulseBetterTab());
         modules.add(new PulseTrail());
+        modules.add(new PulseClickGui());
         modules.add(new PulseNoRender());
         modules.add(new PulseLogoutSpots());
         modules.add(new PulseXray());
